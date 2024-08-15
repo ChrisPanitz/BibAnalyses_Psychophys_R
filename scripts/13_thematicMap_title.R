@@ -1,0 +1,123 @@
+### header ###
+# for network analysis'
+fromYear <- 2014
+toYear <- 2023
+nrNetworkItems <- NULL # how many items are included in the computation of the network (NULL = all available)
+deleteSingleOccurrences <- TRUE # TRUE/FALSE: delete keywords that have a frequency of 1
+#shortLabels <- TRUE # TRUE/FALSE: plot short labels (1st author + year)
+
+# for plotting
+nrItems2plot <- 50
+minOccurences <- NULL # has priority over nrItems2plot if not set to NULL
+plotTitle <- ""
+mapType <- "auto" # type of map layout; choose between "auto", "cirlce", "sphere", "mds", "fruchterman", and "kamada"
+clusterMethod <- "walktrap" # method to cluster key terms; choose between "none", "optimal", "louvain","leiden", "infomap","edge_betweenness","walktrap", "spinglass", "leading_eigen", "fast_greedy"
+vosPath <- "C:\\VosViewerJar" # path of VOS Viewer needed if plotting should be done by this software
+removeIsolates <- TRUE # remove keywords that do not co-occur sufficiently with other keywords
+minEdgeStrength <- 5
+### end header ###
+
+
+
+# load packages
+library(here)
+library(bibliometrix)
+library(dplyr)
+
+# parent folder
+parentFolder <- here()
+
+# load  bibliometric data frame
+filename <- paste0(parentFolder, "/rawData/allPapers.rds")
+df <- readRDS(filename)
+
+# load multi-word key terms to keep
+terms2keep_TI <- read.table(paste0(parentFolder, "/terms/compoundTerms_TI_selected.txt"), sep = ";")[,1]
+
+# load prepared lists of terms to delete and synonyms
+terms2delete <- read.table(paste0(parentFolder, "/terms/terms2delete_TI.txt"), sep = ";")[,1]
+synonyms <- read.table(paste0(parentFolder, "/terms/synonyms_TI.txt"), sep = ";")[,1]
+
+
+
+
+
+
+### TEMPORARY FOR ADDING WORDS TO DELETE ###
+terms2delete <- c(terms2delete,
+                  "individual",
+                  "difference",
+                  "differences")
+############################################
+
+
+
+
+
+
+
+# extract keywords from article titles
+df <- termExtraction(df, Field = "TI", ngrams = 1, remove.numbers = FALSE,
+                     remove.terms = terms2delete, synonyms = synonyms, verbose = TRUE)
+
+# custom way to treat multi-word terms as one term, words joint by hyphen
+replace2keep_TI <- gsub(" ",";",terms2keep_TI)
+replaceWith_TI <- gsub(" ","-",terms2keep_TI)
+for (i in 1:length(terms2keep_TI)){
+  #df$TI_TM <- gsub(replace2keep_TI[i],replaceWith_TI[i],df$TI_TM)
+  df$TI <- gsub(terms2keep_TI[i],replaceWith_TI[i],df$TI)
+}
+
+# for descriptive statistics: frequencies of the key terms from article titles
+tableTag(df, Tag = "TI_TM", remove.terms = terms2delete, synonyms = synonyms)
+
+# compute network
+thematicMap <- thematicMap(df[df$PY > 2013,],
+                           field = "TI",
+                           n = 250,
+                           minfreq = 5,
+                           ngrams = 1,
+                           stemming = FALSE,
+                           size = 0.5,
+                           n.labels = 5,
+                           community.repulsion = 0.1,
+                           repel = TRUE,
+                           remove.terms = terms2delete,
+                           synonyms = synonyms,
+                           cluster = "walktrap", #"optimal", "louvain","leiden", "infomap","edge_betweenness","walktrap", "spinglass", "leading_eigen", "fast_greedy"
+                           subgraphs = TRUE
+); thematicMap
+
+thematicMap
+#Cobo, M. J., Lopez-Herrera, A. G., Herrera-Viedma, E., & Herrera, F. (2011). An approach for detecting, quantifying, and visualizing the evolution of a research field: A practical application to the fuzzy sets theory field. Journal of Informetrics, 5(1), 146-166.
+
+# ... and plot it
+# set.seed(1) # make the arrangement reproducible
+# nwPlot_TI <- networkPlot(network_TI,
+#                          normalize = NULL,
+#                          n = nrItems2plot,
+#                          degree = minOccurences,
+#                          Title = plotTitle,
+#                          type = mapType,
+#                          label = TRUE,
+#                          labelsize = 1,
+#                          label.cex = TRUE,
+#                          label.color = FALSE,
+#                          label.n = NULL,
+#                          halo = FALSE,
+#                          cluster = clusterMethod,
+#                          community.repulsion = 0.1,
+#                          vos.path = vosPath,
+#                          size = 3,
+#                          size.cex = TRUE,
+#                          curved = FALSE,
+#                          noloops = TRUE,
+#                          remove.multiple = TRUE,
+#                          remove.isolates = removeIsolates,
+#                          weighted = NULL,
+#                          edgesize = 1,
+#                          edges.min = minEdgeStrength,
+#                          alpha = 0.5,
+#                          verbose = TRUE)
+# 
+# net2VOSviewer(nwPlot_TI, vos.path = vosPath)
