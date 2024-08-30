@@ -8,7 +8,7 @@ yearTo <- 2023
 # load packages
 library(here)
 library(bibliometrix)
-library(dplyr)
+library(tidyr)
 library(stringr)
 library(psych)
 library(ggplot2)
@@ -21,7 +21,7 @@ filename <- paste0(parentFolder, "/rawData/allPapers.rds")
 df <- readRDS(filename)
 
 df$nrAuthors <- lengths(str_split(df$AU, ";"))
-describe.by(df$nrAuthors, group = df$PY)
+describeBy(df$nrAuthors, group = df$PY)
 meanNrAuthors <- aggregate(nrAuthors ~ PY, data = df, FUN = "mean")
 mdNrAuthors <- aggregate(nrAuthors ~ PY, data = df, FUN = "median")
 plot(meanNrAuthors)
@@ -99,17 +99,32 @@ for (i in 1:length(dfCountriesPerYear$year)){
 plot(dfCountriesPerYear[,1:2])
 plot(dfCountriesPerYear[,c(1,3)])
 
-countries2plot <- 10
+countries2plot <- 15
 countryByYearCumulated <- KeywordGrowth(df, Tag = "AU_CO", top = countries2plot)
 countryByYear <- countryByYearCumulated
 countryByYear[,2:(countries2plot+1)] <- apply(rbind(rep(0,countries2plot), countryByYear[,2:(countries2plot+1)]), 2, diff)
-countryByYear <- pivot_longer(countryByYear, cols = 2:11, names_to = "country", values_to = "publications")
-timecoursePlot <- ggplot(countryByYear, aes(x = Year, y = publications, color = country)) +
-  theme_classic() +
-  geom_line() +
-  scale_color_brewer(type = "qual", palette = "Paired"); timecoursePlot
+countryByYear <- pivot_longer(countryByYear, cols = 2:(countries2plot+1), names_to = "country", values_to = "publications")
+countryByYear$lineType <- factor(rep(c(rep(1,ceiling(countries2plot/2)), rep(2,floor(countries2plot/2))),
+                                     dim(countryByYear)[1]/countries2plot))
 
-collabNetwork <- biblioNetwork(df, analysis = "collaboration", network = "countries", sep = ";", n = 15)
+#colorVals <- rainbow(n = countries2plot, s = 1, v = 1, start = 0, end = 1-1/countries2plot)
+#colorValsDark <- rainbow(n = countries2plot, s = 1, v = .50, start = 0, end = 1-1/countries2plot)
+#colorVals[seq(1,length(colorVals),2)] <- colorValsDark[seq(1,length(colorVals),2)]
+colorVals <- rep(rainbow(n = ceiling(countries2plot/2), s = 1, v = .90, start = 0, end = 1-1/ceiling(countries2plot/2)),2)
+colorValsDark <- rep(rainbow(n = ceiling(countries2plot/2), s = 1, v = .50, start = 0, end = 1-1/ceiling(countries2plot/2)),2)
+colorVals[seq(1,length(colorVals),2)] <- colorValsDark[seq(1,length(colorVals),2)]
+colorVals <- colorVals[1:countries2plot]
+
+#timecoursePlot <- ggplot(countryByYear, aes(x = Year, y = publications, color = country)) +
+timecoursePlot <- ggplot(countryByYear[countryByYear$Year >= yearFrom & countryByYear$Year <= yearTo,], aes(x = Year, y = publications, color = country)) +
+  theme_classic() +
+  geom_line(aes(linetype = country)) +
+  #geom_line() +
+  scale_color_manual(values = colorVals, breaks = unique(countryByYear$country)) +
+  scale_linetype_manual(values = c(rep("solid",ceiling(countries2plot/2)), rep("dashed",floor(countries2plot/2))), breaks = unique(countryByYear$country)); timecoursePlot
+  #scale_color_brewer(type = "qual", palette = "Paired"); timecoursePlot
+
+collabNetwork <- biblioNetwork(df, analysis = "collaboration", network = "countries", sep = ";", n = countries2plot)
 collabPlot <- networkPlot(collabNetwork, type = "circle", size = TRUE,
                           remove.multiple = FALSE, edges.min = 10, Title = "")
 
@@ -117,8 +132,17 @@ collabNetworkAll <- biblioNetwork(df, analysis = "collaboration", network = "cou
 collabPlotAll <- networkPlot(collabNetworkAll, type = "circle", size = TRUE,
                              remove.multiple = FALSE, edges.min = 3, Title = "")
 
-# save the plots manually
+# save the plots 
+set.seed(1)
+pdf(paste0(parentFolder, "/plots/internationalCollabs_top15_min10.pdf"), width = 20/2.54, height = 20/2.54)
+collabPlot <- networkPlot(collabNetwork, type = "circle", size = TRUE,
+                          remove.multiple = FALSE, edges.min = 10, Title = "")
+dev.off()
 
-
+set.seed(1)
+pdf(paste0(parentFolder, "/plots/internationalCollabs_all_min3.pdf"), width = 20/2.54, height = 20/2.54)
+collabPlotAll <- networkPlot(collabNetworkAll, type = "circle", size = TRUE,
+                             remove.multiple = FALSE, edges.min = 10, Title = "")
+dev.off()
 
 
