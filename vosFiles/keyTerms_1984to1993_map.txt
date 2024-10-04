@@ -1,0 +1,51 @@
+id	label	x	y	cluster	weight<Links>	weight<Total link strength>
+1	erp	-0.5715	0.3156	3	27	71
+2	cardiovascular	1.072	0.1433	2	20	63
+3	sleep	-0.0577	-0.421	1	16	28
+4	p300	-0.6581	-0.2105	1	15	22
+5	behavior	0.8201	-0.1295	4	22	42
+6	heart rate	0.3937	-0.0343	2	26	42
+7	blood pressure	0.5311	-0.1241	2	14	21
+8	electrodermal	-0.9056	-0.3124	1	13	23
+9	stimulus	-0.9254	-0.3383	1	11	21
+10	human	-0.2486	-0.1712	1	18	26
+11	attention	-0.6293	0.4878	3	11	22
+12	detection	-0.405	-0.2679	1	13	17
+13	function	0.0656	0.3273	5	17	20
+14	cognition	0.4693	0.0571	3	13	20
+15	cardiac	0.0497	0.1599	5	12	16
+16	component	-0.1275	0.4537	3	9	19
+17	eeg	0.078	-0.4444	1	16	24
+18	method	0.1747	-0.4242	1	13	14
+19	stress	1.1155	0.079	2	14	28
+20	visual	-0.623	-0.0149	3	11	18
+21	performance	-0.4734	-0.4222	1	16	24
+22	autonomic	-0.1084	0.6579	5	16	21
+23	pattern	1.2553	0.1806	4	10	14
+24	orienting	-0.8152	-0.17	1	16	25
+25	skin conductance	-0.8847	0.1197	1	11	17
+26	normal	0.0275	-0.1255	1	20	24
+27	recording	-0.2996	-0.4328	1	12	16
+28	auditory	-0.9746	0.5148	3	12	22
+29	emotion	-0.5135	0.9053	5	3	5
+30	hypertension	1.4724	0.0147	4	9	23
+31	individual differences	0.124	0.383	5	14	16
+32	latency	-0.8765	-0.484	1	11	19
+33	exercise	1.0194	-0.1914	2	9	16
+34	habituation	-1.1114	-0.273	1	12	21
+35	selective attention	-0.909	0.8636	3	3	8
+36	type a	0.8707	0.4224	2	10	19
+37	anxiety	0.4193	-0.4658	2	9	12
+38	evaluation	-0.0766	-0.3039	2	12	14
+39	mental arithmetic	0.8315	0.0674	2	10	18
+40	monitoring	-0.2708	-0.5256	1	15	15
+41	patients	-0.8633	-0.0788	1	12	15
+42	perception	0.0376	0.4508	5	10	12
+43	reaction time	0.3559	0.2538	2	9	11
+44	rem	-0.5006	-0.71	1	6	6
+45	respiratory	0.712	-0.3472	4	8	13
+46	rsa	0.7284	-0.1082	4	9	10
+47	tone	0.2554	-0.1919	4	12	16
+48	cardiovascular stress	1.4441	0.0538	4	4	6
+49	change	0.0204	0.0901	2	15	18
+50	conditioning	-0.5145	0.7214	5	8	11

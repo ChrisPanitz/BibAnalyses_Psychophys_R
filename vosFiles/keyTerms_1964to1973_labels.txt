@@ -1,0 +1,51 @@
+id	label
+1	heart rate
+2	sleep
+3	conditioning
+4	autonomic
+5	orienting
+6	cardiac
+7	electrodermal
+8	time
+9	eeg
+10	human
+11	skin potential
+12	galvanic skin
+13	scr
+14	eye movement
+15	function
+16	level
+17	skin resistance
+18	child
+19	feedback
+20	recording
+21	skin conductance
+22	habituation
+23	pattern
+24	stimulus
+25	cognition
+26	control
+27	differential
+28	performance
+29	auditory
+30	evoked
+31	normal
+32	signal
+33	arousal
+34	varies
+35	visual
+36	detection
+37	interval
+38	method
+39	period
+40	potential
+41	rat
+42	rate
+43	behavior
+44	component
+45	cortex
+46	sensory
+47	spontaneous
+48	technique
+49	alpha
+50	latency
