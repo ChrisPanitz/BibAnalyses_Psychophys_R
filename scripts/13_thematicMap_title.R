@@ -44,10 +44,10 @@ synonyms <- read.table(paste0(parentFolder, "/terms/synonyms_TI.txt"), sep = ";"
 
 
 ### TEMPORARY FOR ADDING WORDS TO DELETE ###
-terms2delete <- c(terms2delete,
-                  "individual",
-                  "difference",
-                  "differences")
+#terms2delete <- c(terms2delete,
+#                  "individual",
+#                  "difference",
+#                  "differences")
 ############################################
 
 
@@ -72,7 +72,7 @@ for (i in 1:length(terms2keep_TI)){
 tableTag(df, Tag = "TI_TM", remove.terms = terms2delete, synonyms = synonyms)
 
 # compute network
-thematicMap <- thematicMap(df[df$PY > 2013,],
+thematicMap <- thematicMap(df[df$PY < 1984,],
                            field = "TI",
                            n = 250,
                            minfreq = 5,
