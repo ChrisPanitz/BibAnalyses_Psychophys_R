@@ -1,5 +1,5 @@
 ### header ###
-fromYear <-2014
+fromYear <- 2014
 toYear <- 2023
 nrItems2plot <- 50
 ### end header ###
@@ -25,24 +25,31 @@ terms2keep_TI <- read.table(paste0(parentFolder, "/terms/compoundTerms_TI_select
 terms2delete <- read.table(paste0(parentFolder, "/terms/terms2delete_TI.txt"), sep = ";")[,1]
 synonyms <- read.table(paste0(parentFolder, "/terms/synonyms_TI.txt"), sep = ";")[,1]
 
+# custom way to treat multi-word terms as one term, words joint by hyphen
+#replace2keep_TI <- gsub(" "," ",terms2keep_TI)
+replaceWith_TI <- gsub(" ","-",terms2keep_TI)
+for (i in 1:length(terms2keep_TI)){
+  df$TI <- gsub(terms2keep_TI[i],replaceWith_TI[i],df$TI)
+}
+
 # extract keywords from article titles
 df <- termExtraction(df, Field = "TI", ngrams = 1, remove.numbers = FALSE,
                      remove.terms = terms2delete, synonyms = synonyms, verbose = TRUE)
 
 # custom way to treat multi-word terms as one term, words joint by hyphen
-replace2keep_TI <- gsub(" ",";",terms2keep_TI)
-replaceWith_TI <- gsub(" ","-",terms2keep_TI)
-for (i in 1:length(terms2keep_TI)){
-  df$TI_TM <- gsub(replace2keep_TI[i],replaceWith_TI[i],df$TI_TM)
-}
+#replace2keep_TI <- gsub(" ",";",terms2keep_TI)
+#replaceWith_TI <- gsub(" ","-",terms2keep_TI)
+#for (i in 1:length(terms2keep_TI)){
+#  df$TI_TM <- gsub(replace2keep_TI[i],replaceWith_TI[i],df$TI_TM)
+#}
 
 # manually count +1 for individual difference(s) if individual and difference
 # occur after each other, possibly with filler words in between
-df$TI_TM <- gsub("INDIVIDUAL;DIFFERENCE","INDIVIDUAL-DIFFERENCE",df$TI_TM)
-df$TI_TM <- gsub("DIFFERENCE;INDIVIDUAL","INDIVIDUAL-DIFFERENCE",df$TI_TM)
+#df$TI_TM <- gsub("INDIVIDUAL;DIFFERENCE","INDIVIDUAL-DIFFERENCE",df$TI_TM)
+#df$TI_TM <- gsub("DIFFERENCE;INDIVIDUAL","INDIVIDUAL-DIFFERENCE",df$TI_TM)
 
 # extract occurrence matrix (binary; publication x keyword)
-occMat <- cocMatrix(
+occMat <- citcocMatrix(
   df[is.element(df$PY,fromYear:toYear),],
   Field = "TI_TM",
   type = "matrix",

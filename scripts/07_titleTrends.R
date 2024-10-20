@@ -62,7 +62,12 @@ synonyms <- read.table(paste0(parentFolder, "/terms/synonyms_TI.txt"), sep = ";"
 
 
 
-
+# custom way to treat multi-word terms as one term, words joint by hyphen
+#replace2keep_TI <- gsub(" "," ",terms2keep_TI)
+replaceWith_TI <- gsub(" ","-",terms2keep_TI)
+for (i in 1:length(terms2keep_TI)){
+  df$TI <- gsub(terms2keep_TI[i],replaceWith_TI[i],df$TI)
+}
 
 
 # extract keywords from article titles
@@ -70,15 +75,15 @@ df <- termExtraction(df, Field = "TI", ngrams = 1, remove.numbers = FALSE,
                      remove.terms = terms2delete, synonyms = synonyms, verbose = TRUE)
 
 # custom way to treat multi-word terms as one term, words joint by hyphen
-replace2keep_TI <- gsub(" ",";",terms2keep_TI)
-replaceWith_TI <- gsub(" ","-",terms2keep_TI)
-for (i in 1:length(terms2keep_TI)){
-  df$TI_TM <- gsub(replace2keep_TI[i],replaceWith_TI[i],df$TI_TM)
-}
+#replace2keep_TI <- gsub(" ",";",terms2keep_TI)
+#replaceWith_TI <- gsub(" ","-",terms2keep_TI)
+#for (i in 1:length(terms2keep_TI)){
+#  df$TI_TM <- gsub(replace2keep_TI[i],replaceWith_TI[i],df$TI_TM)
+#}
 
 # IND DIFF
-df$TI_TM <- gsub("INDIVIDUAL;DIFFERENCE","INDIVIDUAL-DIFFERENCE",df$TI_TM)
-df$TI_TM <- gsub("DIFFERENCE;INDIVIDUAL","INDIVIDUAL-DIFFERENCE",df$TI_TM)
+#df$TI_TM <- gsub("INDIVIDUAL;DIFFERENCE","INDIVIDUAL-DIFFERENCE",df$TI_TM)
+#df$TI_TM <- gsub("DIFFERENCE;INDIVIDUAL","INDIVIDUAL-DIFFERENCE",df$TI_TM)
 
 # for descriptive statistics: frequencies of the key terms from article titles
 tableTag(df, Tag = "TI_TM", remove.terms = terms2delete, synonyms = synonyms)
@@ -108,10 +113,15 @@ termsByDec <- data.frame(lapply(termsByDec, function(x) gsub("-", " ", x)))
 termsByDec <- data.frame(lapply(termsByDec, function(x) gsub("eeg", "EEG", x)))
 termsByDec <- data.frame(lapply(termsByDec, function(x) gsub("erp", "ERP", x)))
 termsByDec <- data.frame(lapply(termsByDec, function(x) gsub("p300", "P300", x)))
+termsByDec <- data.frame(lapply(termsByDec, function(x) gsub("scr", "SCR", x)))
 
 termTable <- flextable(data = termsByDec)
 termTable <- set_header_labels(termTable, values = c("1964-1973", "1974-1983", "1984-1993", "1994-2003", "2004-2013", "2014-2023", "all time"))
 termTable <- align(termTable, align = "center", part  = "all")
+termTable <- font(termTable, font = "Times New Roman", part = "all")
+termTable <- fontsize(termTable, size = 10, part = "all")
+termTable <- bold(termTable, part = "header")
+termTable <- width(termTable, width = 2.5, unit = "cm")
 
 # save the table
 save_as_docx(termTable, path = paste0(parentFolder, "/tables/termsByDecadeTable_export.docx"))
