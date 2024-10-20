@@ -6,36 +6,36 @@ id	label
 5	behavior
 6	heart rate
 7	blood pressure
-8	electrodermal
-9	stimulus
-10	human
-11	attention
-12	detection
-13	function
-14	cognition
-15	cardiac
-16	component
-17	eeg
-18	method
-19	stress
-20	visual
-21	performance
-22	autonomic
-23	pattern
-24	orienting
-25	skin conductance
-26	normal
-27	recording
-28	auditory
-29	emotion
-30	hypertension
-31	individual differences
-32	latency
-33	exercise
-34	habituation
-35	selective attention
-36	type a
-37	anxiety
+8	stress
+9	human
+10	stimulus
+11	function
+12	attention
+13	detection
+14	cardiac
+15	component
+16	eeg
+17	method
+18	visual
+19	cognition
+20	autonomic
+21	electrodermal
+22	performance
+23	recording
+24	auditory
+25	facial
+26	hypertension
+27	individual differences
+28	latency
+29	pattern
+30	emotion
+31	exercise
+32	habituation
+33	normal
+34	type a
+35	anxiety
+36	conditioning
+37	emg
 38	evaluation
 39	mental arithmetic
 40	monitoring
@@ -45,7 +45,7 @@ id	label
 44	rem
 45	respiratory
 46	rsa
-47	tone
-48	cardiovascular stress
+47	selective attention
+48	tone
 49	change
-50	conditioning
+50	lateral

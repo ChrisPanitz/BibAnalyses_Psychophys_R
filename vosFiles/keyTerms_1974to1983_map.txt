@@ -1,51 +1,51 @@
 id	label	x	y	cluster	weight<Links>	weight<Total link strength>
-1	heart rate	-0.3183	0.3815	4	33	98
-2	sleep	-0.1283	-0.1597	1	25	39
-3	electrodermal	0.4968	0.019	3	29	61
-4	feedback	-0.4789	0.3195	4	22	54
-5	function	0.1596	-0.0266	2	36	65
-6	eeg	-0.4714	-0.0514	1	24	43
-7	autonomic	-0.222	-0.4922	1	22	30
-8	cardiac	-0.2537	0.2973	5	22	35
-9	conditioning	0.0859	0.5275	4	22	44
-10	habituation	1.0965	-0.5142	3	16	42
-11	orienting	0.7998	-0.3749	3	22	48
-12	blood pressure	-0.9066	0.2894	4	17	34
-13	skin conductance	0.5774	0.1278	2	20	33
-14	stimulus	1.1044	0.0223	2	16	36
-15	biofeedback	-0.8072	0.4454	4	17	31
-16	cardiovascular	-0.5562	0.1696	4	18	28
-17	control	-0.3615	0.6191	4	17	36
-18	performance	-0.5768	-0.2209	1	19	30
-19	recording	-0.2444	-0.0371	1	14	22
-20	evoked potential	0.4091	-0.7373	5	15	19
-21	human	-0.5526	-0.68	1	17	26
-22	visual	-0.4057	-0.3681	1	18	24
-23	auditory	0.2957	-0.3059	5	18	22
-24	evoked	0.8714	0.4615	2	15	23
-25	pattern	-0.8041	0.2873	4	20	23
-26	detection	0.759	-0.0567	3	11	13
-27	perception	0.465	0.3644	2	11	16
-28	stress	-0.7917	-0.4062	1	19	29
-29	child	-0.0218	-0.6365	5	13	21
-30	reaction time	-0.3402	-0.0988	5	16	29
-31	rem	-0.7937	-0.2114	1	6	6
-32	respiratory	-0.9791	-0.1887	4	16	25
-33	behavior	-0.113	-0.6656	1	18	22
-34	cognition	-0.9164	0.1321	1	15	20
-35	learning	0.1934	0.9565	2	11	15
-36	normal	-0.1332	-0.8156	5	15	21
-37	change	-0.3347	-0.5821	3	15	25
-38	component	0.1204	-0.6618	3	17	21
-39	difference	-0.0406	0.2787	1	17	18
-40	p300	0.7963	0.5579	2	10	14
-41	potential	0.81	0.7761	2	13	18
-42	training	0.023	-0.4059	3	17	21
-43	varies	-0.05	0.3895	2	18	19
-44	amplitude	0.8962	-0.6491	3	12	18
-45	arousal	0.5435	-0.3865	3	12	15
-46	cortex	1.0276	0.8113	2	8	14
-47	lateral	-0.9705	0.4738	1	9	10
-48	rat	-0.6303	0.8365	4	10	16
-49	recovery	0.7649	0.4252	2	14	22
-50	stimulus intensity	0.9067	-0.2361	3	15	22
+1	heart rate	-0.4577	-0.1617	5	28	89
+2	sleep	-0.1216	-0.3541	2	23	35
+3	eeg	-0.5336	0.1823	2	22	41
+4	feedback	-0.5416	0.6483	4	23	57
+5	function	0.1334	-0.2392	1	35	66
+6	electrodermal	0.3036	0.1048	3	23	43
+7	autonomic	-0.1257	0.3077	4	22	30
+8	cardiac	-0.4234	-0.3545	2	20	30
+9	conditioning	-0.2688	-0.1871	5	20	42
+10	habituation	1.0246	0.3021	3	17	41
+11	blood pressure	-0.9205	0.3619	4	17	34
+12	biofeedback	-1.0439	0.4186	4	17	32
+13	cardiovascular	-0.6328	-0.1389	5	18	33
+14	stimulus	0.9976	0.5304	3	16	32
+15	control	-0.5201	0.4618	4	15	35
+16	performance	-0.4321	-0.2298	2	22	36
+17	recording	-0.1108	0.0066	2	15	23
+18	evoked potential	0.893	-0.4023	1	15	23
+19	orienting response	0.9274	0.4039	3	18	33
+20	visual	0.2629	-0.1939	1	21	31
+21	auditory	0.672	-0.0465	1	21	30
+22	human	-0.1842	-0.4092	2	16	25
+23	erp	0.7506	0.067	1	9	12
+24	scr	0.648	0.5529	3	13	22
+25	stress	-0.5735	-0.0528	4	19	32
+26	evoked	0.8781	-0.3	1	13	21
+27	perception	0.5185	-0.5767	1	13	17
+28	detection	0.2862	0.6365	3	11	14
+29	reaction time	-0.1812	-0.778	5	12	24
+30	rem	-0.5902	-0.6171	2	5	5
+31	respiratory	-0.8849	0.1521	4	17	26
+32	behavior	0.3669	-0.3778	1	18	22
+33	pattern	-1.159	0.1276	2	13	15
+34	skin conductance	-0.1829	-0.903	5	9	14
+35	anxiety	-0.3914	0.5664	4	11	14
+36	change	0.125	0.4641	3	16	26
+37	cognition	-0.8654	-0.3072	2	14	18
+38	component	0.3729	0.4413	3	16	20
+39	difference	-0.2116	-0.1149	2	16	18
+40	eda	0.6443	-0.5868	1	8	9
+41	p300	0.7893	0.4205	3	8	11
+42	training	-0.0353	0.684	3	17	21
+43	amplitude	0.8025	0.6629	3	12	17
+44	child	0.4663	-0.6578	1	9	12
+45	cortex	1.0564	-0.3015	1	13	20
+46	lateral	-1.078	0.0048	2	9	10
+47	rat	-1.1065	-0.2521	5	9	16
+48	recovery	0.3367	-0.4866	5	13	19
+49	stimulus intensity	0.924	-0.0554	1	14	20
+50	technique	-0.6036	0.5762	4	13	18

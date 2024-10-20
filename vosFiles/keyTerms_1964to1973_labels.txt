@@ -1,51 +1,51 @@
 id	label
 1	heart rate
-2	sleep
-3	conditioning
-4	autonomic
-5	orienting
+2	scr
+3	sleep
+4	conditioning
+5	autonomic
 6	cardiac
-7	electrodermal
-8	time
-9	eeg
-10	human
-11	skin potential
-12	galvanic skin
-13	scr
-14	eye movement
-15	function
-16	level
-17	skin resistance
-18	child
-19	feedback
-20	recording
-21	skin conductance
-22	habituation
-23	pattern
-24	stimulus
-25	cognition
-26	control
-27	differential
-28	performance
-29	auditory
-30	evoked
-31	normal
-32	signal
-33	arousal
-34	varies
-35	visual
-36	detection
-37	interval
-38	method
-39	period
-40	potential
-41	rat
-42	rate
-43	behavior
-44	component
-45	cortex
-46	sensory
-47	spontaneous
-48	technique
-49	alpha
-50	latency
+7	eeg
+8	reaction time
+9	human
+10	eye movement
+11	function
+12	level
+13	orienting response
+14	skin resistance
+15	electrodermal
+16	feedback
+17	recording
+18	habituation
+19	stimulus
+20	differential
+21	pattern
+22	skin potential
+23	auditory
+24	cognition
+25	control
+26	evoked
+27	performance
+28	signal
+29	arousal
+30	child
+31	skin conductance
+32	visual
+33	detection
+34	interval
+35	method
+36	period
+37	potential
+38	rat
+39	alpha
+40	behavior
+41	component
+42	cortex
+43	rate
+44	sensory
+45	spontaneous
+46	technique
+47	latency
+48	normal
+49	respiratory
+50	average

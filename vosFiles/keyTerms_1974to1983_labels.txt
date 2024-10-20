@@ -1,51 +1,51 @@
 id	label
 1	heart rate
 2	sleep
-3	electrodermal
+3	eeg
 4	feedback
 5	function
-6	eeg
+6	electrodermal
 7	autonomic
 8	cardiac
 9	conditioning
 10	habituation
-11	orienting
-12	blood pressure
-13	skin conductance
+11	blood pressure
+12	biofeedback
+13	cardiovascular
 14	stimulus
-15	biofeedback
-16	cardiovascular
-17	control
-18	performance
-19	recording
-20	evoked potential
-21	human
-22	visual
-23	auditory
-24	evoked
-25	pattern
-26	detection
+15	control
+16	performance
+17	recording
+18	evoked potential
+19	orienting response
+20	visual
+21	auditory
+22	human
+23	erp
+24	scr
+25	stress
+26	evoked
 27	perception
-28	stress
-29	child
-30	reaction time
-31	rem
-32	respiratory
-33	behavior
-34	cognition
-35	learning
-36	normal
-37	change
+28	detection
+29	reaction time
+30	rem
+31	respiratory
+32	behavior
+33	pattern
+34	skin conductance
+35	anxiety
+36	change
+37	cognition
 38	component
 39	difference
-40	p300
-41	potential
+40	eda
+41	p300
 42	training
-43	varies
-44	amplitude
-45	arousal
-46	cortex
-47	lateral
-48	rat
-49	recovery
-50	stimulus intensity
+43	amplitude
+44	child
+45	cortex
+46	lateral
+47	rat
+48	recovery
+49	stimulus intensity
+50	technique
