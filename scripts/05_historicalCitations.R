@@ -1,3 +1,12 @@
+# --- author: Christian Panitz
+# --- encoding: UTF-8
+# --- R version: 4.3.1 (2023-06-16) -- "Beagle Scouts"
+# --- RStudio version: 2023.06.0
+# --- script version: Oct 2024
+# --- content: Create and plot historical direct citation network on top locally cited papers
+
+
+
 ### header ### 
 minCite <- 1 # only include papers with at least [minCite] local citations when computing the network
 nrVertices <- 50 # number of vertices to plot
@@ -60,20 +69,13 @@ dfHistList$firstAuthor[dfHistList$firstAuthor == "Naatanen R"] <- "Näätänen R
 histTable <- flextable(data = dfHistList, col_keys = c("clustID", "year", "firstAuthor", "title", "localCit", "globalCit", "doi"))
 histTable <- set_header_labels(histTable, values = c("Cluster", "Year", "First Author", "Title", "Local Citations", "Global Citations", "DOI"))
 histTable <- align(histTable, align = "center", part  = "all")
-
+# using plot colors for table
 for (rowI in 1:length(dfHistList$clustColor)){
   histTable <- color(histTable, i = rowI, color = dfHistList$clustColor[rowI])
 }
 histTable
 
-
-
-#histPlot$data$y[histPlot$data$id == "obrist pa, 1970"] <- histPlot$data$y[histPlot$data$id == "obrist pa, 1970"] - 0.2
-#histPlot$data$y[histPlot$data$id == "vogel ek, 2000"] <- histPlot$data$y[histPlot$data$id == "vogel ek, 2000"] + 0.2
-#histPlot$data$yend[histPlot$data$id == "vogel ek, 2000"] <- histPlot$data$yend[histPlot$data$id == "vogel ek, 2000"] - 0.2
-#histPlot$data$y[histPlot$data$id == "fridlund aj, 1986"] <- histPlot$data$y[histPlot$data$id == "fridlund aj, 1986"] - 0.05
-#histPlot$data$yend[histPlot$data$id == "fridlund aj, 1986"] <- histPlot$data$yend[histPlot$data$id == "fridlund aj, 1986"] - 0.05
-
+### fine tune position of overlapping nodes and correct misspelled names
 # move obrist 1970 a bit up
 histPlot$data$y[histPlot$data$id == "obrist pa, 1970"] <- histPlot$data$y[histPlot$data$id == "obrist pa, 1970"] + 0.04
 # move naatanen 1987 a bit up
@@ -97,41 +99,19 @@ histPlot$data$id[histPlot$data$id == "duncanjohnson cc, 1977"] <- "Duncan-Johnso
 # naatannen ==> Näätänen
 histPlot$data$id[histPlot$data$id == "naatanen r, 1987"] <- "Näätänen R, 1987"
 
-#histPlot$data$yend[histPlot$data$id == "sherwood a, 1986"][2] <- histPlot$data$yend[histPlot$data$id == "sherwood a, 1986"][2] - 0.05
-# move fridlund 1986 a bit up
-# histPlot$data$y[histPlot$data$id == "fridlund aj, 1986"] <- histPlot$data$y[histPlot$data$id == "fridlund aj, 1986"] + 0.05
-# histPlot$data$yend[histPlot$data$id == "fridlund aj, 1986"] <- histPlot$data$yend[histPlot$data$id == "fridlund aj, 1986"] + 0.05
-# histPlot$data$yend[histPlot$data$id == "blumenthal td, 2005"][2] <- histPlot$data$yend[histPlot$data$id == "blumenthal td, 2005"][2] + 0.05
-# histPlot$data$yend[histPlot$data$id == "bradley mm, 1990"] <- histPlot$data$yend[histPlot$data$id == "bradley mm, 1990"] + 0.05
-# # move coles 1989 a tiny bit up
-# histPlot$data$y[histPlot$data$id == "coles mgh, 1989"] <- histPlot$data$y[histPlot$data$id == "coles mgh, 1989"] + 0.01
-# histPlot$data$yend[histPlot$data$id == "coles mgh, 1989"] <- histPlot$data$yend[histPlot$data$id == "coles mgh, 1989"] + 0.01
-# histPlot$data$yend[histPlot$data$id == "picton tw, 2000"][2] <- histPlot$data$yend[histPlot$data$id == "picton tw, 2000"][2] + 0.01
-# histPlot$data$yend[histPlot$data$id == "kok a, 2001"][4] <- histPlot$data$yend[histPlot$data$id == "kok a, 2001"][4] + 0.01
-# histPlot$data$yend[histPlot$data$id == "miller j, 1998"] <- histPlot$data$yend[histPlot$data$id == "miller j, 1998"] + 0.01
-# # move verleger 1997 a tiny bit up
-# histPlot$data$y[histPlot$data$id == "verleger r, 1997"] <- histPlot$data$y[histPlot$data$id == "verleger r, 1997"] + 0.02
-# histPlot$data$yend[histPlot$data$id == "folstein jr, 2008"][2] <- histPlot$data$yend[histPlot$data$id == "folstein jr, 2008"][2] + 0.02
-# histPlot$data$yend[histPlot$data$id == "kiesel a, 2008"][4] <- histPlot$data$yend[histPlot$data$id == "kiesel a, 2008"][4] + 0.02
-# histPlot$data$yend[histPlot$data$id == "kok a, 2001"][5] <- histPlot$data$yend[histPlot$data$id == "kok a, 2001"][5] + 0.02
-# # move kiesel 2008 a tiny bit up
-# histPlot$data$y[histPlot$data$id == "kiesel a, 2008"] <- histPlot$data$y[histPlot$data$id == "kiesel a, 2008"] + 0.02
-# # move kok 2001 a tiny bit up
-# histPlot$data$y[histPlot$data$id == "kok a, 2001"] <- histPlot$data$y[histPlot$data$id == "kok a, 2001"] + 0.01
-# # move schupp 2000 a tiny bit up
-# histPlot$data$y[histPlot$data$id == "schupp ht, 2000"] <- histPlot$data$y[histPlot$data$id == "schupp ht, 2000"] + 0.01
-# histPlot$data$yend[histPlot$data$id == "schupp ht, 2000"] <- histPlot$data$yend[histPlot$data$id == "schupp ht, 2000"] + 0.01
-# histPlot$data$yend[histPlot$data$id == "keil a, 2002"] <- histPlot$data$yend[histPlot$data$id == "keil a, 2002"] + 0.01
 
+
+# capitalize first letter of last name and initials
 histPlot$data$id <- str_to_title(histPlot$data$id)
 for (i in 1:length(histPlot$data$id)){
   commaPos <- unlist(gregexpr(',', histPlot$data$id[i]))
   substr(histPlot$data$id[i],commaPos-2,commaPos-1) <- toupper(substr(histPlot$data$id[i],commaPos-2,commaPos-1))
 }
 
+# format citation network plot
 histPlot <- histPlot +
   theme_classic() +
-  #scale_color_manual(values = clusterColors[c(2,4,9,3,8,6,1,5,7)], aesthetics = c("color","fill")) +
+  # for some reason order of colors in plot is different from previously extracted list
   scale_color_manual(values = clusterColors[c(2,4,3,8,7,1,5,6)], aesthetics = c("color","fill")) +
   coord_cartesian(clip = 'off') +
   theme(plot.title = element_blank(),
@@ -142,15 +122,15 @@ histPlot <- histPlot +
 
 histPlot$layers[[4]] <- NULL # delete bibliometrix logo
 
+# plot it
 histPlot
 
 # save the plot
 ggsave(paste0(parentFolder, "/plots/HistoricalDirectCitationNetwork.pdf"), histPlot,
        width = 20, height = 20, units = "cm")
+
 ggsave(paste0(parentFolder, "/plots/HistoricalDirectCitationNetwork.png"), histPlot,
        width = 20, height = 20, units = "cm", dpi = 600)
 
 # save the table
 save_as_docx(histTable, path = paste0(parentFolder, "/tables/histTable_export.docx"))
-
-

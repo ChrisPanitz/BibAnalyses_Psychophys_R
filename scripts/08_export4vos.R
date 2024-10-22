@@ -1,7 +1,15 @@
+# --- author: Christian Panitz
+# --- encoding: UTF-8
+# --- R version: 4.3.1 (2023-06-16) -- "Beagle Scouts"
+# --- RStudio version: 2023.06.0
+# --- script version: Oct 2024
+# --- content: Compute co-occurrences of top XX key terms and export them for VOS Viewer
+
+
 ### header ###
-fromYear <- 2014
-toYear <- 2023
-nrItems2plot <- 50
+fromYear <- 2014 # publications from year XXXXX
+toYear <- 2023 # publications until year XXXX
+nrItems2plot <- 50 # top XX key terms to export and plot in VOS
 ### end header ###
 
 
@@ -26,7 +34,6 @@ terms2delete <- read.table(paste0(parentFolder, "/terms/terms2delete_TI.txt"), s
 synonyms <- read.table(paste0(parentFolder, "/terms/synonyms_TI.txt"), sep = ";")[,1]
 
 # custom way to treat multi-word terms as one term, words joint by hyphen
-#replace2keep_TI <- gsub(" "," ",terms2keep_TI)
 replaceWith_TI <- gsub(" ","-",terms2keep_TI)
 for (i in 1:length(terms2keep_TI)){
   df$TI <- gsub(terms2keep_TI[i],replaceWith_TI[i],df$TI)
@@ -35,18 +42,6 @@ for (i in 1:length(terms2keep_TI)){
 # extract keywords from article titles
 df <- termExtraction(df, Field = "TI", ngrams = 1, remove.numbers = FALSE,
                      remove.terms = terms2delete, synonyms = synonyms, verbose = TRUE)
-
-# custom way to treat multi-word terms as one term, words joint by hyphen
-#replace2keep_TI <- gsub(" ",";",terms2keep_TI)
-#replaceWith_TI <- gsub(" ","-",terms2keep_TI)
-#for (i in 1:length(terms2keep_TI)){
-#  df$TI_TM <- gsub(replace2keep_TI[i],replaceWith_TI[i],df$TI_TM)
-#}
-
-# manually count +1 for individual difference(s) if individual and difference
-# occur after each other, possibly with filler words in between
-#df$TI_TM <- gsub("INDIVIDUAL;DIFFERENCE","INDIVIDUAL-DIFFERENCE",df$TI_TM)
-#df$TI_TM <- gsub("DIFFERENCE;INDIVIDUAL","INDIVIDUAL-DIFFERENCE",df$TI_TM)
 
 # extract occurrence matrix (binary; publication x keyword)
 occMat <- citcocMatrix(
@@ -63,7 +58,7 @@ occMat <- citcocMatrix(
 
 # compute co-occurrence matrix (count data; keyword x keyword)
 occMat[occMat > 0] <- 1 # some terms might have been double-counted because of synonyms
-coocMat <- t(occMat) %*% occMat
+coocMat <- t(occMat) %*% occMat # get co-occurrence matrix form occurrence matrix
 
 # Get the indices of the upper triangle (excluding diagonal)
 upper_tri_indices <- which(lower.tri(coocMat), arr.ind = TRUE)
@@ -85,7 +80,7 @@ labelDF <- data.frame(
 )
 labelDF$label <- gsub("-", " ", labelDF$label)
 
-# Save data
+# save data
 write.table(coocMat, file = paste0(parentFolder,"/vosFiles/keyTerms_",fromYear,"to",toYear,"_coocMat.txt"),
             sep = ";", col.names = TRUE, row.names = TRUE)
 
@@ -94,4 +89,3 @@ write.table(coocDF, file = paste0(parentFolder,"/vosFiles/keyTerms_",fromYear,"t
 
 write.table(labelDF, file = paste0(parentFolder,"/vosFiles/keyTerms_",fromYear,"to",toYear,"_labels.txt"),
             sep = "\t", quote = FALSE, col.names = TRUE, row.names = FALSE)
-

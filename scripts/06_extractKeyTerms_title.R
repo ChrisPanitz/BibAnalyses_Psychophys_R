@@ -1,3 +1,12 @@
+# --- author: Christian Panitz
+# --- encoding: UTF-8
+# --- R version: 4.3.1 (2023-06-16) -- "Beagle Scouts"
+# --- RStudio version: 2023.06.0
+# --- script version: Oct 2024
+# --- content: Extract (multi- and single-word) key terms from publication titles and write them into txt file
+
+
+
 ### header ###
 minOccur_multi <- 5 # minimum of occurrences of multi-word combinations to be classified as key term
 minOccur_export <- 5 # minimum of occurrences of key terms to be exported for dictionary
@@ -37,11 +46,11 @@ df <- termExtraction(df, Field = "TI", ngrams = 1, remove.numbers = FALSE, verbo
 terms2keep_TI <- c(dimnames(tabTags4[tabTags4 >= minOccur_multi])[["Tab"]],
                    dimnames(tabTags3[tabTags3 >= minOccur_multi])[["Tab"]],
                    dimnames(tabTags2[tabTags2 >= minOccur_multi])[["Tab"]])
-
+# ... and write them into txt file
 write.table(terms2keep_TI, paste0(parentFolder, "/terms/compoundTerms_TI_selected.txt"),
             row.names = FALSE, col.names = FALSE)
 
-# look in the TI_TM field for multi-word terms and replace ";" by "-"
+# look in the TI_TM field for multi-word terms and replace ";" by "-" (multi-word terms will later also be extracted using ngram = 1)
 replace_TI <- gsub(" ",";",terms2keep_TI)
 replaceWith_TI <- gsub(" ","-",terms2keep_TI)
 

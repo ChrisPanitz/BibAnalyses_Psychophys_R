@@ -1,3 +1,10 @@
+# --- author: Christian Panitz
+# --- encoding: UTF-8
+# --- R version: 4.3.1 (2023-06-16) -- "Beagle Scouts"
+# --- RStudio version: 2023.06.0
+# --- script version: Oct 2024
+# --- content: Run standard bibliometrix descriptive analyses on dataset
+
 ### header ###
 showEntries <- 25 # how many objects (i.e., top papers, authors, keywords) to show in the summary results
 ### end header ###
@@ -42,7 +49,6 @@ missValByYear[,c("year", "AU", "TI", "AB", "DE", "AU_CO")]
 
 # run standard summary analyses
 results <- biblioAnalysis(df)
-#results <- biblioAnalysis(df[df$PY > 2014,])
 
 # ...and show them
 options(width = 100)

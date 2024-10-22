@@ -1,5 +1,15 @@
-# header
+# --- author: Christian Panitz
+# --- encoding: UTF-8
+# --- R version: 4.3.1 (2023-06-16) -- "Beagle Scouts"
+# --- RStudio version: 2023.06.0
+# --- script version: Oct 2024
+# --- content: Run analyses & create plots on journal performace (publications, submissions, IF)
+
+
+### header ###
 fontSize <- 12
+### end header ###
+
 
 # load packages
 library(here)
@@ -15,6 +25,12 @@ parentFolder <- here()
 # load  bibliometric data frame
 filename <- paste0(parentFolder, "/rawData/allPapers.rds")
 df <- readRDS(filename)
+
+
+
+####################
+### publications ###
+####################
 
 # create and format data frame for number of published papers by year 
 dfPubs <- data.frame(table(df$PY))
@@ -42,13 +58,20 @@ pubPlot <- ggplot(data = dfPubs, aes(x = year, y = nrPubs)) +
 pubPlot
 
 
+
+###################
+### submissions ###
+###################
+
 # load  submission data
 filename <- paste0(parentFolder, "/rawData/annualSubmissions_Psychophysiology_1980to2023.txt")
 dfSub <- read.csv(filename, sep = ";")
-dfSub
+
+# some descriptive statistics on submission numbers
 describe(dfSub$submissions)
 quantile(dfSub$submissions)
 
+# plot submission numbers
 yMaxSub <- 800
 subPlot <- ggplot(data = dfSub, aes(x = year, y = submissions)) +
   theme_classic() +
@@ -62,41 +85,21 @@ subPlot
 
 
 
+#####################
+### impact factor ###
+#####################
+
 # load  impact factor data
 filename <- paste0(parentFolder, "/rawData/impactFactor_Psychophysiology_1997to2021.txt")
 dfIF <- read.csv(filename, sep = ";")
 dfIF$IF <- round(dfIF$IF, 2)
 
-# show impact factor across years and plot it
+# show impact factor across years and make quick plot
 dfIF
 describe(dfIF$IF)
 quantile(dfIF$IF)
 
-
-
-# ###
-# dfPubs$IF <- NA
-# dfPubs$IF[dfPubs$year >= 1997 & dfPubs$year <= 2021] <- dfIF$IF
-# 
-# citPlot <- ggplot(data = dfPubs, aes(x = year)) +
-#   theme_classic() +
-#   geom_col(aes(y = citPerYear), fill = "gray50") + 
-#   geom_text(aes(y = 0.1, label = citPerYear), size = 2, fontface = "bold", color = "white") +
-#   geom_line(aes(y = IF), color = "darkred") + 
-#   geom_point(aes(y = IF), color = "darkred") + 
-#   geom_text(aes(y = IF-0.3, label = IF), size = 2, fontface = "bold", color = "darkred") +
-#   scale_x_continuous(name = "Year", breaks = seq(min(dfPubs$year),max(dfPubs$year),2)) +
-#   scale_y_continuous(limits = c(0,7), name = "mean # of citations per year since publication",
-#                      sec.axis = dup_axis(name = "2-year impact factor")) +
-#   theme(axis.line.y.right = element_line(color = "darkred"),
-#         axis.ticks.y.right = element_line(color = "darkred"),
-#         axis.text.y.right = element_text(color = "darkred"),
-#         axis.title.y.right = element_text(color = "darkred"))
-# citPlot
-
-
-###
-# by year
+# plot impact factor over years
 yMaxIF <- 5.0
 ifPlot <- ggplot(data = dfIF, aes(x = year, y = IF)) +
                  theme_classic() +
@@ -109,12 +112,17 @@ ifPlot <- ggplot(data = dfIF, aes(x = year, y = IF)) +
 ifPlot
 
 
+
+#####################
+### combine plots ###
+#####################
+
+# combine plots
 combPlot <- ggarrange(pubPlot, subPlot, ifPlot,
                       nrow = 3, ncol = 1,
                       labels = c("A","B","C"),
                       align = "v")
 combPlot
-
 
 # save it
 ggsave(paste0(parentFolder, "/plots/nrPub_nrSub_IF.pdf"), combPlot,

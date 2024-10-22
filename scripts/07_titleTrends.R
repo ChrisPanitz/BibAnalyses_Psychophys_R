@@ -1,26 +1,20 @@
+# --- author: Christian Panitz
+# --- encoding: UTF-8
+# --- R version: 4.3.1 (2023-06-16) -- "Beagle Scouts"
+# --- RStudio version: 2023.06.0
+# --- script version: Oct 2024
+# --- content: List top 10 key terms for each decade & all time; draw top 10 all-time over the years; create tables & plots
+
+
+
 ### header ###
-# for network analysis'
-fromYear <- 1964
-toYear <- 2023
-nrNetworkItems <- NULL # how many items are included in the computation of the network (NULL = all available)
-deleteSingleOccurrences <- TRUE # TRUE/FALSE: delete keywords that have a frequency of 1
-#shortLabels <- TRUE # TRUE/FALSE: plot short labels (1st author + year)
+showEntries <- 10 # plot top X key terms
+showEntriesQuant <- 50 # for supplementary plot, showing median & quartiles of publication years for top XX key terms of all time
 
-# for plotting
-nrItems2plot <- 50
-minOccurences <- NULL # has priority over nrItems2plot if not set to NULL
-plotTitle <- ""
-mapType <- "auto" # type of map layout; choose between "auto", "cirlce", "sphere", "mds", "fruchterman", and "kamada"
-clusterMethod <- "walktrap" # method to cluster key terms; choose between "none", "optimal", "louvain","leiden", "infomap","edge_betweenness","walktrap", "spinglass", "leading_eigen", "fast_greedy"
-vosPath <- "C:\\VosViewerJar" # path of VOS Viewer needed if plotting should be done by this software
-removeIsolates <- TRUE # remove keywords that do not co-occur sufficiently with other keywords
-minEdgeStrength <- 5
+fontSize = 12 # for plotting
 
-#
-showEntries <- 10
-showEntriesQuant <- 50
-
-fontSize = 12
+fromYear <- 1964 # for supplementary plot
+toYear <- 2023 # for supplementary plot
 ### end header ###
 
 
@@ -47,52 +41,26 @@ terms2keep_TI <- read.table(paste0(parentFolder, "/terms/compoundTerms_TI_select
 terms2delete <- read.table(paste0(parentFolder, "/terms/terms2delete_TI.txt"), sep = ";")[,1]
 synonyms <- read.table(paste0(parentFolder, "/terms/synonyms_TI.txt"), sep = ";")[,1]
 
-
-
-
-
-
-### TEMPORARY FOR ADDING WORDS TO DELETE ###
-#terms2delete <- c(terms2delete,
-#                  "individual",
-#                  "difference",
-#                  "differences")
-############################################
-
-
-
-
-# custom way to treat multi-word terms as one term, words joint by hyphen
-#replace2keep_TI <- gsub(" "," ",terms2keep_TI)
+# custom way to treat multi-word terms as one term, single words joint by hyphen
 replaceWith_TI <- gsub(" ","-",terms2keep_TI)
 for (i in 1:length(terms2keep_TI)){
   df$TI <- gsub(terms2keep_TI[i],replaceWith_TI[i],df$TI)
 }
 
-
 # extract keywords from article titles
 df <- termExtraction(df, Field = "TI", ngrams = 1, remove.numbers = FALSE,
                      remove.terms = terms2delete, synonyms = synonyms, verbose = TRUE)
 
-# custom way to treat multi-word terms as one term, words joint by hyphen
-#replace2keep_TI <- gsub(" ",";",terms2keep_TI)
-#replaceWith_TI <- gsub(" ","-",terms2keep_TI)
-#for (i in 1:length(terms2keep_TI)){
-#  df$TI_TM <- gsub(replace2keep_TI[i],replaceWith_TI[i],df$TI_TM)
-#}
 
-# IND DIFF
-#df$TI_TM <- gsub("INDIVIDUAL;DIFFERENCE","INDIVIDUAL-DIFFERENCE",df$TI_TM)
-#df$TI_TM <- gsub("DIFFERENCE;INDIVIDUAL","INDIVIDUAL-DIFFERENCE",df$TI_TM)
 
-# for descriptive statistics: frequencies of the key terms from article titles
+###########################
+### key term statistics ###
+###########################
+
+# for descriptive statistics: frequencies of the key terms from article titles all-time
 tableTag(df, Tag = "TI_TM", remove.terms = terms2delete, synonyms = synonyms)
-#tableTag(df[df$PY > 2012,], Tag = "TI_TM", remove.terms = terms2delete, synonyms = synonyms)
-#sum(df$PY > 2012)
-#tableTag(df, Tag = "DE", remove.terms = terms2delete, synonyms = synonyms)
 
-
-# for decades
+# top key terms by decades & all time
 termsByDec <- data.frame(
   years64to73 = tolower(names(tableTag(df[is.element(df$PY, 1964:1973),], Tag = "TI_TM",
                                        remove.terms = terms2delete, synonyms = synonyms)[1:showEntries])),
@@ -109,12 +77,14 @@ termsByDec <- data.frame(
   allTime = tolower(names(tableTag(df[is.element(df$PY, 1964:2023),], Tag = "TI_TM",
                                    remove.terms = terms2delete, synonyms = synonyms)[1:showEntries]))
 )
+# some manual editing
 termsByDec <- data.frame(lapply(termsByDec, function(x) gsub("-", " ", x)))
 termsByDec <- data.frame(lapply(termsByDec, function(x) gsub("eeg", "EEG", x)))
 termsByDec <- data.frame(lapply(termsByDec, function(x) gsub("erp", "ERP", x)))
 termsByDec <- data.frame(lapply(termsByDec, function(x) gsub("p300", "P300", x)))
 termsByDec <- data.frame(lapply(termsByDec, function(x) gsub("scr", "SCR", x)))
 
+# create & format flextable
 termTable <- flextable(data = termsByDec)
 termTable <- set_header_labels(termTable, values = c("1964-1973", "1974-1983", "1984-1993", "1994-2003", "2004-2013", "2014-2023", "all time"))
 termTable <- align(termTable, align = "center", part  = "all")
@@ -127,14 +97,16 @@ termTable <- width(termTable, width = 2.5, unit = "cm")
 save_as_docx(termTable, path = paste0(parentFolder, "/tables/termsByDecadeTable_export.docx"))
 
 
-# Top 10 of all time over time
-#keytermByYearCumulated <- KeywordGrowth(df[is.element(df$PY, yearFrom:yearTo),], Tag = "AU_CO", top = countries2plot)
-keytermByYearCumulated <- KeywordGrowth(df, Tag = "TI_TM", top = showEntries, remove.terms = terms2delete, synonyms = synonyms)
-keytermByYear <- keytermByYearCumulated
-#keytermByYear[,2:(showEntries+1)] <- apply(rbind(rep(0,showEntries), keytermByYear[,2:(showEntries+1)]), 2, diff)
+
+####################################################
+### plot all time top 10 over years (cumulative) ###
+####################################################
+
+# extract cumulative key term counts over years and creat data frame in long format
+keytermByYear <- KeywordGrowth(df, Tag = "TI_TM", top = showEntries, remove.terms = terms2delete, synonyms = synonyms)
 keytermByYear <- pivot_longer(keytermByYear, cols = 2:(showEntries+1), names_to = "keyterm", values_to = "occurrences")
-#keytermByYear$lineType <- factor(rep(c(rep(1,ceiling(countries2plot/2)), rep(2,floor(countries2plot/2))),
-#                                     dim(keytermByYear)[1]/countries2plot))
+
+# some manual editing
 keytermByYear$keyterm <- tolower(keytermByYear$keyterm)
 keytermByYear$keyterm <- gsub("-"," ",keytermByYear$keyterm)
 keytermByYear$keyterm[keytermByYear$keyterm == "erp"] <- "ERP"
@@ -144,24 +116,20 @@ keytermByYear$keyterm[keytermByYear$keyterm == "eeg"] <- "EEG"
 colorVals <- rep(rainbow(n = showEntries, s = 1, v = 1.00, start = 0, end = 1-1/showEntries),2)
 colorValsDark <- rep(rainbow(n = showEntries, s = 1, v = 0.70, start = 0, end = 1-1/showEntries),2)
 colorVals[seq(1,length(colorVals),2)] <- colorValsDark[seq(1,length(colorVals),2)]
-#colorVals <- colorVals[1:countries2plot]
 
-# plot line plot for publications by country and year (not accumulated)
+# plot line plot for cumulative publications by country and year
 timecoursePlot <- ggplot(keytermByYear, aes(x = Year, y = occurrences, color = keyterm)) +
   theme_classic() +
-  #geom_line(aes(linetype = keyterm)) +
   geom_line() +
   labs(y = "Number of Occurrences") +
   scale_color_manual(values = colorVals, breaks = unique(keytermByYear$keyterm)) +
   scale_x_continuous(breaks = seq(1960,2020,10)) +
-  #scale_linetype_manual(values = c(rep("solid",ceiling(countries2plot/2)),
-  #                                 rep("dashed",floor(countries2plot/2))),
-  #                      breaks = unique(countryByYear$country)) +
   theme(legend.title = element_blank(),
         legend.text = element_text(size = fontSize - 2, color = "black"),
         axis.title = element_text(size = fontSize, color = "black"),
         axis.text = element_text(size = fontSize - 2, color = "black")); timecoursePlot
 
+# save the plot
 ggsave(paste0(parentFolder, "/plots/keytermsTimecourse.pdf"), timecoursePlot,
        width = 15, height = 12, units = "cm")
 ggsave(paste0(parentFolder, "/plots/keytermsTimecourse.png"), timecoursePlot,
@@ -169,16 +137,21 @@ ggsave(paste0(parentFolder, "/plots/keytermsTimecourse.png"), timecoursePlot,
 
 
 
-# plot median and quantiles of publication years for top key terms (bibliometrix original)
+##################################
+### Supplement: Quantile plots ###
+##################################
+# plot median and quantiles of publication years for top key terms (bibliometrix function)
 fieldByYear(df, field = "TI_TM", timespan = c(fromYear, toYear),
             min.freq = 5, n.items = 1, 
             remove.terms = terms2delete, synonyms = synonyms,
             graph = TRUE, dynamic.plot = TRUE)
 
-### custom plot
+### code copied and adapted from bibliometrix function
+# count key term occurrences
 A <- cocMatrix(df, Field = "TI_TM", binary = FALSE, remove.terms = terms2delete, synonyms = synonyms)
 n <- colSums(as.array(A))
 
+# compute quantiles for publication years by key term
 quants2plot <- c(0.25,0.50,0.75)
 trend_med <- apply(A, 2, function(x) {   
   round(quantile(rep(df$PY, x), quants2plot, na.rm=TRUE))
@@ -189,9 +162,9 @@ trend_med <- as_tibble(t(trend_med)) %>%
          "year_med"=paste0(round(quants2plot[2]*100),"%"),
          "year_q3"=paste0(round(quants2plot[3]*100),"%")) %>%  
   mutate(item=rownames(t(trend_med)), freq=n) %>% 
-  #relocate(c(.data$item,.data$freq), .data$year_q1)
   relocate(c(item, freq), year_q1)
 
+# some manual editing
 trendMed2plot <- trend_med[1:showEntriesQuant,]
 trendMed2plot$item <- gsub("-"," ",trendMed2plot$item)
 trendMed2plot$item <- tolower(trendMed2plot$item)
@@ -199,10 +172,9 @@ trendMed2plot$item[trendMed2plot$item == "erp"] <- "ERP"
 trendMed2plot$item[trendMed2plot$item == "eeg"] <- "EEG"
 trendMed2plot$item[trendMed2plot$item == "p300"] <- "P300"
 
-
+# plot it
 quantYearsPlot <- ggplot(data = trendMed2plot, aes(x = item)) +
                     theme_classic() +
-                    #geom_hline(yintercept = seq(1970,2020,10), color = "gray30", linetype = "solid") +
                     geom_rect(xmin = 0, xmax = 51, ymin = 1980, ymax = 1990, fill = "gray80", color = NA) +
                     geom_rect(xmin = 0, xmax = 51, ymin = 2000, ymax = 2010, fill = "gray80", color = NA) +
                     geom_rect(xmin = 0, xmax = 51, ymin = 2020, ymax = 2023, fill = "gray80", color = NA) +
@@ -214,6 +186,7 @@ quantYearsPlot <- ggplot(data = trendMed2plot, aes(x = item)) +
                     coord_flip() +
                     theme(axis.text = element_text(color = "black")); quantYearsPlot
 
+# and save it
 ggsave(paste0(parentFolder,"/plots/keytermsQuantiles.pdf"), quantYearsPlot,
        width = 20,height = 30, unit = "cm")
 ggsave(paste0(parentFolder,"/plots/keytermsQuantiles.png"), quantYearsPlot,

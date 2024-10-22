@@ -1,7 +1,19 @@
-fromYear <- 2014
-toYear <- 2023
+# --- author: Christian Panitz
+# --- encoding: UTF-8
+# --- R version: 4.3.1 (2023-06-16) -- "Beagle Scouts"
+# --- RStudio version: 2023.06.0
+# --- script version: Oct 2024
+# --- content: Compute and plot centrality and density for VOS Viewer clusters, write tables describing clusters
 
-fontSize = 18
+
+### header ###
+fromYear <- 2014 # analyze publications from year XXXX
+toYear <- 2023 # analyze publications until year XXXX
+
+fontSize = 18# for plotting
+### end header ###
+
+
 
 # packages
 library(here)
@@ -13,8 +25,6 @@ library(ggplot2)
 
 # parent folder
 parentFolder <- here()
-
-
 
 # Load the VOS data from files
 vosMap <- read.table(paste0(parentFolder,"/vosFiles/keyTerms_",fromYear,"to",toYear,"_map.txt"),
@@ -34,96 +44,21 @@ keyGraph <- graph_from_data_frame(vosNetwork, directed = FALSE)
 V(keyGraph)$cluster <- vosMap$cluster[match(V(keyGraph)$name, vosMap$id)]
 V(keyGraph)$label <- vosMap$label[match(V(keyGraph)$name, vosMap$id)]
 
-#V(keyGraph)$label
-#V(keyGraph)$cluster
-
+# create dataframe with cluster index, associated key terms, and number of key terms
 graphDF <- summarize(group_by(vosMap, by = cluster), terms = paste(label, collapse = ", "))
 names(graphDF) <- c("cluster", "keyterms")
 graphDF$cluster <- factor(graphDF$cluster)
 graphDF$clustSize <- as.vector(table(V(keyGraph)$cluster))
-#graphDF$density <- NA
 graphDF$keyterms <- gsub("-", " ", graphDF$keyterms)
 
-
-
-### COMPUTE centrality and density based on bibliometrix co-occurence matrix
-# # load  bibliometric data frame
-# filename <- paste0(parentFolder, "/rawData/allPapers.rds")
-# df <- readRDS(filename)
-# 
-# # load multi-word key terms to keep
-# terms2keep_TI <- read.table(paste0(parentFolder, "/terms/compoundTerms_TI_selected.txt"), sep = ";")[,1]
-# 
-# # load prepared lists of terms to delete and synonyms
-# terms2delete <- read.table(paste0(parentFolder, "/terms/terms2delete_TI.txt"), sep = ";")[,1]
-# synonyms <- read.table(paste0(parentFolder, "/terms/synonyms_TI.txt"), sep = ";")[,1]
-# 
-# # extract keywords from article titles
-# df <- termExtraction(df, Field = "TI", ngrams = 1, remove.numbers = FALSE,
-#                      remove.terms = terms2delete, synonyms = synonyms, verbose = TRUE)
-# 
-# # custom way to treat multi-word terms as one term, words joint by hyphen
-# replace2keep_TI <- gsub(" ",";",terms2keep_TI)
-# replaceWith_TI <- gsub(" ","-",terms2keep_TI)
-# for (i in 1:length(terms2keep_TI)){
-#   df$TI_TM <- gsub(replace2keep_TI[i],replaceWith_TI[i],df$TI_TM)
-# }
-# 
-# # IND DIFF
-# df$TI_TM <- gsub("INDIVIDUAL;DIFFERENCE","INDIVIDUAL-DIFFERENCE",df$TI_TM)
-# df$TI_TM <- gsub("DIFFERENCE;INDIVIDUAL","INDIVIDUAL-DIFFERENCE",df$TI_TM)
-# 
-# # extract occurrence matrix (binary; publication x keyword)
-# occMat <- cocMatrix(
-#   df[is.element(df$PY,fromYear:toYear),],
-#   Field = "TI_TM",
-#   type = "matrix",
-#   n = length(V(keyGraph)$cluster),
-#   sep = ";",
-#   binary = FALSE,
-#   short = TRUE,
-#   remove.terms = terms2delete,
-#   synonyms = synonyms
-# )
-
-
-
-
-###
-# compute co-occurrence matrix (count data; keyword x keyword)
-#occMat[occMat > 0] <- 1 # some terms might have been double-counted because of synonyms
-#coocMat <- t(occMat) %*% occMat
-
-# compute total occurrences of key terms
-#totalOcc <- diag(coocMat)
-
-# set diagonal (occurrences to zero)
-#coocMat <- coocMat * (1-diag(dim(coocMat)[1]))
-
-# square co-occurrences (as is done when exporting bibliometrix data to VOS viewer)
-#coocMatSquared <- coocMat^2
-
-#coocMat <- matrix(0, nrow = length(V(keyGraph)), ncol = length(V(keyGraph)))
-
-
-
-#for (i in 1:dim(vosNetwork)[1]){
-#  coocMat[vosNetwork$node1[i], vosNetwork$node2[i]] <- vosNetwork$cooccurrences[i]
-#  coocMat[vosNetwork$node2[i], vosNetwork$node1[i]] <- vosNetwork$cooccurrences[i]
-#}
-
-
-
-
+# load co-occurrence data
 coocMat <- as.matrix(read.table(file = paste0(parentFolder,"/vosFiles/keyTerms_",fromYear,"to",toYear,"_coocMat.txt"),
                       sep = ";", header = TRUE))
 
 # compute total occurrences of key terms
 totalOcc <- diag(coocMat)
 
-# compute associative strength (van Eck & Waltmann, 2014)
-#asMat <- 2 * sum(coocMatSquared)/2 * coocMatSquared /
-#         (outer(rowSums(coocMatSquared), colSums(coocMatSquared)))
+# compute associative strength for all pairs of key terms (van Eck & Waltmann, 2014)
 asMat <- 2 * sum(coocMat)/2 * coocMat /
   (outer(rowSums(coocMat), colSums(coocMat)))
 
@@ -139,26 +74,27 @@ for (clustI in 1:dim(graphDF)[1]){
                        sum(V(keyGraph)$cluster == clustI)
 }
 
+
+
 # create rank data for centrality and density; with minus because rank() ranks from lowest to highest
 graphDF$centralityRank <- rank(-graphDF$centralityAS)
 graphDF$densityRank <- rank(-graphDF$densityAS) 
 
-### TOP 5
+# function to extract 5 most frequent key terms for each cluster
 createTop5 <- function(terms) {
   splitTerms <- strsplit(terms, ",")[[1]] # Split the terms by commas
   splitTerms <- trimws(splitTerms) # Trim whitespaces
-  selectedTerms <- splitTerms[1:min(5, length(splitTerms))] # Select the first 5 terms or fewer
+  selectedTerms <- splitTerms[1:min(5, length(splitTerms))] # Select the first 5 terms (or fewer in smaller clusters)
   paste(selectedTerms, collapse = "\n") # Combine them with line breaks
 }
 
 # Apply the function to graphDF
 graphDF$top5 <- sapply(graphDF$keyterms, createTop5)
 
-#graphDF[,c("centralityAS","densityAS")] <- round(graphDF[,c("centralityAS","densityAS")])
-#graphDF$centralityAS <- paste0(round(centralityAS)," (",order(centralityAS, decreasing = TRUE),")")
-#graphDF$densityAS <- paste0(round(densityAS)," (",order(densityAS, decreasing = TRUE),")")
-
+# read RGB codes for clusters and transform them into hex
 clustCol$hexCol <- rgb(clustCol$red, clustCol$green, clustCol$blue, maxColorValue = 255)
+
+# create data frame for table with descriptive cluster statistics
 dfTable <- data.frame(
   cluster = graphDF$cluster,
   keyterms = graphDF$keyterms,
@@ -166,6 +102,8 @@ dfTable <- data.frame(
   centralityAS = paste0(round(graphDF$centralityAS)," (",graphDF$centralityRank,")"),
   densityAS = paste0(round(graphDF$densityAS)," (",graphDF$densityRank,")")  
 )
+
+# create and format table
 clusterTable <- flextable(dfTable)
 clusterTable <- set_header_labels(clusterTable, values = c("Cluster", "Key Terms", "Size", "Centrality", "Density"))
 clusterTable <- align(clusterTable, align = "center", part  = "all")
@@ -176,57 +114,24 @@ clusterTable <- bold(clusterTable, part = "header")
 clusterTable <- width(clusterTable, width = 2, unit = "cm")
 clusterTable <- width(clusterTable, j = 2, width = 9, unit = "cm")
 
+# set font colors to each cluster's color
 for (rowI in 1:dim(dfTable)[1]){
   clusterTable <- color(clusterTable, i = rowI, color = clustCol$hexCol[rowI])
 }
 
+# show table
 clusterTable
+
 # save the table
-#save_as_docx(clusterTable, path = paste0(parentFolder, "/tables/keytermCoocurrences_",fromYear,"to",toYear,"_export.docx"))
 save_as_docx(clusterTable, path = paste0(parentFolder, "/tables/keytermCoocurrences_",fromYear,"to",toYear,".docx"))
 
 
 
+###############################################
+### create plots for centrality and density ###
+###############################################
 
-###
-cMin <- min(graphDF$centralityRank)
-cMax <- max(graphDF$centralityRank)
-#cRan <- cMax - cMin
-dMin <- min(graphDF$densityRank)
-dMax <- max(graphDF$densityRank)
-#dRan <- dMax - dMin
-
-themMapPlotMedian <- ggplot(graphDF, aes(x = cMax+1-centralityRank, y = dMax+1-densityRank,
-                                   color = cluster, size = totalOccurrences)) +
-  theme_classic() +
-  #geom_hline(yintercept = mean(c(min(graphDF$centralityRank),max(graphDF$centralityRank))), linetype = "dashed", color = "gray50") +
-  #geom_vline(xintercept = mean(c(min(graphDF$densityRank),max(graphDF$densityRank))), linetype = "dashed", color = "gray50") +
-  geom_hline(yintercept = median(graphDF$centralityRank), linetype = "dashed", color = "gray50") +
-  geom_vline(xintercept = median(graphDF$densityRank), linetype = "dashed", color = "gray50") +
-  #annotate(geom = "text", x = 0.25, y = 7, label = "niche themes", color = "gray50") +
-  #annotate(geom = "text", x = 6.75, y = 7, label = "motor themes", color = "gray50") +
-  #annotate(geom = "text", x = 6.75, y = 0, label = "basic themes", color = "gray50") +
-  #annotate(geom = "text", x = 0.25, y = 0, label = "up/down themes", color = "gray50") +
-  geom_point(alpha = .70) +
-  geom_text(aes(label = top5), size = fontSize/6, fontface = "bold", color ="black") +
-  scale_x_continuous(name = "Centrality (Ranked)", breaks = NULL, limits = c(0,cMax+1)) +
-  scale_y_continuous(name = "Density (Ranked)", breaks = NULL, limits = c(0,dMax+1)) +
-  scale_color_manual(values = clustCol$hexCol) +
-  scale_size_continuous(range = c(10,30)) +
-  theme(legend.position = "none",
-        axis.title = element_text(size = fontSize, color = "black"))
-themMapPlotMedian
-
-# save median plots
-ggsave(paste0(parentFolder, "/plots/thematicMaps/themMap_Median_",fromYear,"to",toYear,".pdf"), themMapPlotMedian,
-       width = 20, height = 20, units = "cm")
-ggsave(paste0(parentFolder, "/plots/thematicMaps/themMap_Median_",fromYear,"to",toYear,".png"), themMapPlotMedian,
-       width = 20, height = 20, units = "cm", dpi = 600)
-
-
-
-###
-
+### using original centrality and density data as used in the manuscript (and plotting the median values as lines)
 cMin <- min(graphDF$centralityAS)
 cMax <- max(graphDF$centralityAS)
 cRan <- cMax - cMin
@@ -234,6 +139,7 @@ dMin <- min(graphDF$densityAS)
 dMax <- max(graphDF$densityAS)
 dRan <- dMax - dMin
 
+# move word lists apart to avoid overlap when two clusters have similar centrality and density
 graphDF$textX <- graphDF$centralityAS
 for (i in 1:(max(graphDF$centralityRank)-1)){
   for (j in (i+1):max(graphDF$centralityRank)){
@@ -249,17 +155,12 @@ for (i in 1:(max(graphDF$centralityRank)-1)){
   }
 }
 
+# plot it
 themMapPlotMean <- ggplot(graphDF, aes(x = centralityAS, y = densityAS,
                                    color = cluster, size = totalOccurrences)) +
   theme_classic() +
-  #geom_vline(xintercept = mean(c(min(graphDF$centralityAS),max(graphDF$centralityAS))), linetype = "dashed", color = "gray50") +
-  #geom_hline(yintercept = mean(c(min(graphDF$densityAS),max(graphDF$densityAS))), linetype = "dashed", color = "gray50") +
   geom_vline(xintercept = mean(graphDF$centralityAS), linetype = "dashed", color = "gray50") +
   geom_hline(yintercept = mean(graphDF$densityAS), linetype = "dashed", color = "gray50") +
-  #annotate(geom = "text", x = cMin-0.08*cRan, y = dMax+0.20*dRan, label = "niche themes", color = "gray50") +
-  #annotate(geom = "text", x = cMax+0.08*cRan, y = dMax+0.20*dRan, label = "motor themes", color = "gray50") +
-  #annotate(geom = "text", x = cMax+0.08*cRan, y = dMin-0.20*dRan, label = "basic themes", color = "gray50") +
-  #annotate(geom = "text", x = cMin-0.08*cRan, y = dMin-0.20*dRan, label = "up/down themes", color = "gray50") +
   geom_point(alpha = .50) +
   geom_text(aes(x = textX, label = top5), size = fontSize/6, fontface = "bold", color ="black") +
   scale_x_continuous(name = "Centrality", breaks = NULL, limits = c(cMin-0.1*cRan,cMax+0.1*cRan)) +
@@ -270,65 +171,38 @@ themMapPlotMean <- ggplot(graphDF, aes(x = centralityAS, y = densityAS,
         axis.title = element_text(size = fontSize, color = "black"))
 themMapPlotMean
 
-
-
-# save mean plots
+# save plots
 ggsave(paste0(parentFolder, "/plots/thematicMaps/themMap_Mean_",fromYear,"to",toYear,".pdf"), themMapPlotMean,
        width = 20, height = 20, units = "cm")
 ggsave(paste0(parentFolder, "/plots/thematicMaps/themMap_Mean_",fromYear,"to",toYear,".png"), themMapPlotMean,
        width = 20, height = 20, units = "cm", dpi = 600)
-  ######################################
-# coocMat <- matrix(data = NA, nrow = dim(occMat)[2], ncol = dim(occMat)[2])
-# 
-# for (i in 1:dim(coocMat)[1]){
-#   for (j in 1:dim(coocMat)[2]){
-#     coocMat[i,j] <- sum(occMat[,i]*occMat[,j])
-#   }
-# }
-# 
-# eiMat <- matrix(data = NA, nrow = 50, ncol = 50)
-# asMat <- matrix(data = NA, nrow = 50, ncol = 50)
-# for (rowI in 1:dim(asMat)[1]){
-#   for (colI in 1:dim(asMat)[2]){  
-#     eiMat[rowI,colI] <- coocMat[rowI,colI]^2 / (totalKeyCounts[rowI]*totalKeyCounts[colI]) # Cobo (2011)
-#     asMat[rowI,colI] <- 2*(sum(coocMat)/2)*coocMat[rowI,colI] /
-#                         (sum(coocMat[rowI,])*sum(coocMat[,colI])) # van Eck & Waltmann (2014)
-#   }
-# }
-# 
-# ###
-# 
-# 
-# 
-# sumCooc <- sum(coocMat)
-# rowSumsCooc <- rowSums(coocMat)
-# colSumsCooc <- colSums(coocMat)
-# 
-# asMatNew <- 2 * sumCooc * coocMat / (outer(rowSumsCooc, colSumsCooc))
-# ###
-# 
-# 
-# graphDF$centralityAS <- NA
-# graphDF$densityAS <- NA
-# graphDF$centralityEI <- NA
-# graphDF$densityEI <- NA
-# 
-# for (clustI in 1:dim(graphDF)[1]){
-#   graphDF$centralityAS[clustI] <- 10 * sum(asMat[clusterIDs == clustI, clusterIDs != clustI])
-#   graphDF$centralityEI[clustI] <- 10 * sum(eiMat[clusterIDs == clustI, clusterIDs != clustI])
-#   graphDF$densityAS[clustI] <- 100 * sum(asMat[clusterIDs == clustI, clusterIDs = clustI]/2) / sum(clusterIDs == clustI)
-#   graphDF$densityEI[clustI] <- 100 * sum(eiMat[clusterIDs == clustI, clusterIDs = clustI]/2) / sum(clusterIDs == clustI)
-#   #graphDF$centrality[clustI] <- sum(asMat[clusterIDs == clustI, clusterIDs != clustI]^2)
-#   #graphDF$density[clustI] <- (sum(asMat[clusterIDs == clustI, clusterIDs == clustI]) / 2) / (sum(clusterIDs == clustI)*(sum(clusterIDs == clustI)-1)/2)
-# }
-# 
-# flextable(graphDF)
-#as.data.frame(as.matrix(network_TI))
 
 
-#for (rowI in 1:50){
-#  for (colI in 1:50){
-#    
-#  }
-#}
 
+### using ranked data (and plotting the median values as lines)
+cMinMd <- min(graphDF$centralityRank)
+cMaxMd <- max(graphDF$centralityRank)
+dMinMd <- min(graphDF$densityRank)
+dMaxMd <- max(graphDF$densityRank)
+
+# plot it
+themMapPlotMedian <- ggplot(graphDF, aes(x = cMaxMd+1-centralityRank, y = dMaxMd+1-densityRank,
+                                         color = cluster, size = totalOccurrences)) +
+  theme_classic() +
+  geom_hline(yintercept = median(graphDF$centralityRank), linetype = "dashed", color = "gray50") +
+  geom_vline(xintercept = median(graphDF$densityRank), linetype = "dashed", color = "gray50") +
+  geom_point(alpha = .70) +
+  geom_text(aes(label = top5), size = fontSize/6, fontface = "bold", color ="black") +
+  scale_x_continuous(name = "Centrality (Ranked)", breaks = NULL, limits = c(0,cMaxMd+1)) +
+  scale_y_continuous(name = "Density (Ranked)", breaks = NULL, limits = c(0,dMaxMd+1)) +
+  scale_color_manual(values = clustCol$hexCol) +
+  scale_size_continuous(range = c(10,30)) +
+  theme(legend.position = "none",
+        axis.title = element_text(size = fontSize, color = "black"))
+themMapPlotMedian
+
+# save  plots
+ggsave(paste0(parentFolder, "/plots/thematicMaps/themMap_Median_",fromYear,"to",toYear,".pdf"), themMapPlotMedian,
+       width = 20, height = 20, units = "cm")
+ggsave(paste0(parentFolder, "/plots/thematicMaps/themMap_Median_",fromYear,"to",toYear,".png"), themMapPlotMedian,
+       width = 20, height = 20, units = "cm", dpi = 600)
