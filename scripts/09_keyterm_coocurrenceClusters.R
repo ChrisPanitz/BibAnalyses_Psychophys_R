@@ -7,8 +7,8 @@
 
 
 ### header ###
-fromYear <- 2014 # analyze publications from year XXXX
-toYear <- 2023 # analyze publications until year XXXX
+fromYear <- 1964 # analyze publications from year XXXX
+toYear <- 1983 # analyze publications until year XXXX
 
 fontSize = 18# for plotting
 ### end header ###
@@ -141,16 +141,28 @@ dRan <- dMax - dMin
 
 # move word lists apart to avoid overlap when two clusters have similar centrality and density
 graphDF$textX <- graphDF$centralityAS
-for (i in 1:(max(graphDF$centralityRank)-1)){
-  for (j in (i+1):max(graphDF$centralityRank)){
-    xDist <- (graphDF$centralityAS[i]-graphDF$centralityAS[j]) / cRan
-    yDist <- abs(graphDF$densityAS[i]-graphDF$densityAS[j]) / dRan
-    if (xDist < 0.05 & xDist > 0 & yDist < 0.05){
-      graphDF$textX[i] <- graphDF$textX[i] + cRan*0.07
-      graphDF$textX[j] <- graphDF$textX[j] - cRan*0.07
-    } else if (xDist > -0.05 & xDist < 0 & yDist < 0.05){
-      graphDF$textX[i] <- graphDF$textX[i] - cRan*0.07
-      graphDF$textX[j] <- graphDF$textX[j] + cRan*0.07
+graphDF$textY <- graphDF$densityAS
+if (fromYear == 1964 && toYear == 1973){ # lots of overlap in this one! Has to be solved manually
+  graphDF$textX[2] <- graphDF$textX[2] + cRan*.10
+  graphDF$textY[2] <- graphDF$textY[2] - dRan*.18
+  graphDF$textX[3] <- graphDF$textX[3] + cRan*.15
+  graphDF$textX[4] <- graphDF$textX[4] - cRan*.22
+  graphDF$textX[5] <- graphDF$textX[5] + cRan*.12
+  graphDF$textY[5] <- graphDF$textY[5] - dRan*.15
+  graphDF$textX[6] <- graphDF$textX[6] - cRan*.10
+  graphDF$textY[6] <- graphDF$textY[6] + dRan*.15
+} else {
+  for (i in 1:(max(graphDF$centralityRank)-1)){
+    for (j in (i+1):max(graphDF$centralityRank)){
+      xDist <- (graphDF$centralityAS[i]-graphDF$centralityAS[j]) / cRan
+      yDist <- abs(graphDF$densityAS[i]-graphDF$densityAS[j]) / dRan
+      if (xDist < 0.15 & xDist > 0 & yDist < 0.15){
+        graphDF$textX[i] <- graphDF$textX[i] + abs(1/xDist*5)
+        graphDF$textX[j] <- graphDF$textX[j] - abs(1/xDist*5)
+      } else if (xDist > -0.15 & xDist < 0 & yDist < 0.15){
+        graphDF$textX[i] <- graphDF$textX[i] - abs(1/xDist*5)
+        graphDF$textX[j] <- graphDF$textX[j] + abs(1/xDist*5)
+      }
     }
   }
 }
@@ -162,11 +174,12 @@ themMapPlotMean <- ggplot(graphDF, aes(x = centralityAS, y = densityAS,
   geom_vline(xintercept = mean(graphDF$centralityAS), linetype = "dashed", color = "gray50") +
   geom_hline(yintercept = mean(graphDF$densityAS), linetype = "dashed", color = "gray50") +
   geom_point(alpha = .50) +
-  geom_text(aes(x = textX, label = top5), size = fontSize/6, fontface = "bold", color ="black") +
+  geom_text(aes(x = textX, y = textY, label = top5), size = fontSize/4, fontface = "bold", color ="black") +
+  coord_cartesian(clip = 'off') +
   scale_x_continuous(name = "Centrality", breaks = NULL, limits = c(cMin-0.1*cRan,cMax+0.1*cRan)) +
   scale_y_continuous(name = "Density", breaks = NULL, limits = c(dMin-0.2*dRan,dMax+0.2*dRan)) +
   scale_color_manual(values = clustCol$hexCol) +
-  scale_size_continuous(range = c(10,30)) +
+  scale_size_continuous(range = c(20,40)) +
   theme(legend.position = "none",
         axis.title = element_text(size = fontSize, color = "black"))
 themMapPlotMean
@@ -191,12 +204,13 @@ themMapPlotMedian <- ggplot(graphDF, aes(x = cMaxMd+1-centralityRank, y = dMaxMd
   theme_classic() +
   geom_hline(yintercept = median(graphDF$centralityRank), linetype = "dashed", color = "gray50") +
   geom_vline(xintercept = median(graphDF$densityRank), linetype = "dashed", color = "gray50") +
-  geom_point(alpha = .70) +
-  geom_text(aes(label = top5), size = fontSize/6, fontface = "bold", color ="black") +
+  geom_point(alpha = .50) +
+  geom_text(aes(label = top5), size = fontSize/4, fontface = "bold", color ="black") +
+  coord_cartesian(clip = 'off') +
   scale_x_continuous(name = "Centrality (Ranked)", breaks = NULL, limits = c(0,cMaxMd+1)) +
   scale_y_continuous(name = "Density (Ranked)", breaks = NULL, limits = c(0,dMaxMd+1)) +
   scale_color_manual(values = clustCol$hexCol) +
-  scale_size_continuous(range = c(10,30)) +
+  scale_size_continuous(range = c(20,40)) +
   theme(legend.position = "none",
         axis.title = element_text(size = fontSize, color = "black"))
 themMapPlotMedian
