@@ -167,7 +167,7 @@ genderPlot <- ggplot(data = dfGender, aes(x = year, y = percentFemale)) +
   scale_x_continuous(name = "Year", limits = c(1994,2023), 
                      breaks = seq(5*ceiling(min(dfGender$year)/5),max(dfGender$year),5),
                      minor_breaks = seq(1994,2023,1)) +
-  scale_y_continuous(limits = c(0,yMaxGender), name = "% of Female Submitting Authors", expand = c(0,0)) +
+  scale_y_continuous(limits = c(0,yMaxGender), name = "% of Female First/Corresponding Authors", expand = c(0,0)) +
   theme(
     axis.title = element_text(size = fontSize + 2, color = "black"),
     axis.text = element_text(size = fontSize, color = "black")); genderPlot
